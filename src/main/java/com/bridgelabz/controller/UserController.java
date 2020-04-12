@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bridgelabz.Response.Response;
 import com.bridgelabz.dto.LoginDto;
+import com.bridgelabz.dto.UpdatePassWordDto;
 import com.bridgelabz.model.User;
 import com.bridgelabz.service.UserService;
 
@@ -53,6 +56,13 @@ public class UserController {
 		return service.updateUser(user,id);
 	}
 	
+	@PutMapping("/UpdatePass/{token}")
+	public ResponseEntity<User> updatePassword(@RequestBody UpdatePassWordDto userDto, @PathVariable("token") String token )
+	{  
+		return service.updatePassWord(userDto,token );
+		
+	}
+	
 	@PostMapping("/login")
 	public ResponseEntity<User> login(@RequestBody LoginDto loginDto) {
 		return service.login(loginDto);
@@ -67,6 +77,5 @@ public class UserController {
 			return "deleted";
 		}
 		return "ID NOT FOUND";
-		
 	}
 }

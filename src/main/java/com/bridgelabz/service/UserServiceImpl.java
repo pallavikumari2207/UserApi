@@ -1,6 +1,6 @@
 package com.bridgelabz.service;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import com.bridgelabz.Util.EmailService;
 import com.bridgelabz.Util.TokenUtil;
 import com.bridgelabz.dto.LoginDto;
+import com.bridgelabz.dto.UpdatePassWordDto;
+import com.bridgelabz.exception.UserAuthenticationException;
+import com.bridgelabz.exception.UserCredentialsException;
 import com.bridgelabz.model.Mail;
 import com.bridgelabz.model.User;
 import com.bridgelabz.repo.UserRepo;
@@ -59,17 +62,22 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean isVerifiedUser(String token) {
 		Long verifactionUserId = jwt.decodeToken(token);
+		boolean status=false;
 		System.out.println("id is"+ verifactionUserId);
 		if (verifactionUserId > 0) {
+			System.out.println(" inside else varification "+ verifactionUserId);
 			Optional<User> dbuser = repo.findById(verifactionUserId);
 			if(dbuser.isPresent()) {
 				User u=dbuser.get();
 				u.setVerified(true);
 				repo.save(u);
-				return true;
+				System.out.println("isVrified status");
+				status=true;
 			}
+		
 		}
-		return false;
+		return status;
+	
 	}
 
 	@Override
@@ -89,8 +97,8 @@ public class UserServiceImpl implements UserService {
 			if (logindto.getPassWord().equals(user.getPassword())) {
 				if (user.isVerified()) {
 					System.out.println("varification"+user.isVerified());
-					return ResponseEntity.ok().body(user);}
-		}
+					return ResponseEntity.ok().body(user);}}
+		
 			else {
 				System.out.println("in else");
 				String verificationLink = "http://localhost:8080/user/verification/"
@@ -104,7 +112,7 @@ public class UserServiceImpl implements UserService {
 				email.sendSimpleMessage(mail);
 			}
 	}
-		return  ResponseEntity.notFound().build() ;
+		throw new UserCredentialsException("User Credentials are Wrong");
 	}
 	
 
@@ -136,9 +144,26 @@ public boolean deleteUser(long id) {
 	 {return false;}
 	
 }
-    
-    
-    
-    
-    
-    }
+
+@Override
+public ResponseEntity<User> updatePassWord(UpdatePassWordDto updatePassWordDto, String token) {
+
+	Long userId = jwt.decodeToken(token);
+	System.out.println("id is:"+userId);
+	if(userId>0) {
+		Optional<User> dbUser = repo.findById(userId);
+		if(dbUser.isPresent())
+		{
+			System.out.println("in if block of updatepassword");
+		 User user=dbUser.get();
+		String updatedPassWord = bCryptPasswordEncoder.encode(updatePassWordDto.getPassWord());
+		System.out.println("bcrypted pass"+updatedPassWord );
+		 user.setPassword(updatedPassWord);
+		 repo.save(user);
+		 return ResponseEntity.ok().body(user); 
+		}	
+}
+	return ResponseEntity.notFound().build();
+}}
+ 
+ 
