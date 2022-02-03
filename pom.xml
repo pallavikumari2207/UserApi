@@ -12,7 +12,7 @@
 	<groupId>com.bridgelabz</groupId>
 	<artifactId>PallaviDemo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>kalpeshSirDemo</name>
+	<name>PallaviDemo</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
